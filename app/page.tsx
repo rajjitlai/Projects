@@ -1,65 +1,226 @@
-import Image from "next/image";
+'use client';
+
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import gsap from 'gsap';
+import { ProjectGrid } from '@/components/ProjectGrid';
+import { Project } from '@/types';
 
 export default function Home() {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const terminalRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+
+  const filteredProjects = useMemo(() => {
+    let filtered = projects;
+
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(
+        (p) =>
+          p.title.toLowerCase().includes(term) ||
+          p.description.toLowerCase().includes(term) ||
+          p.tags.some((t) => t.toLowerCase().includes(term))
+      );
+    }
+
+    if (selectedTag) {
+      filtered = filtered.filter((p) =>
+        p.tags.map((t) => t.toLowerCase()).includes(selectedTag.toLowerCase())
+      );
+    }
+
+    return filtered;
+  }, [projects, searchTerm, selectedTag]);
+
+  useEffect(() => {
+    // Fetch projects
+    fetch('/api/projects')
+      .then((res) => res.json())
+      .then((data) => {
+        setProjects(data.data || []);
+      })
+      .catch((err) => console.error('Failed to fetch projects:', err));
+  }, []);
+
+  useEffect(() => {
+    // Hero typewriter animation with GSAP
+    if (!heroRef.current) return;
+
+    const heroText = heroRef.current;
+    const lines = heroText.querySelectorAll('span');
+
+    gsap.fromTo(
+      lines,
+      { opacity: 0, x: -20 },
+      {
+        opacity: 1,
+        x: 0,
+        duration: 0.05,
+        stagger: 0.1,
+        ease: 'none',
+        repeat: -1,
+        repeatDelay: 5,
+        yoyo: true,
+      }
+    );
+  }, []);
+
+  // Get all unique tags
+  const allTags = Array.from(
+    new Set(projects.flatMap((p) => p.tags.map((t) => t.toLowerCase())))
+  );
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
+    <div className="min-h-screen bg-[#0a0a0a] text-green-400">
+      {/* Scanline overlay */}
+      <div className="fixed inset-0 pointer-events-none z-50 bg-[linear-gradient(transparent_50%,rgba(0,255,65,0.03)_100%)] bg-[length:100%_4px]" />
+
+      {/* Header */}
+      <header className="fixed top-4 left-4 right-4 z-40">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="bg-black/80 border border-green-500/30 px-4 py-2 rounded backdrop-blur">
+            <h1 className="text-green-400 font-mono text-sm">
+              <span className="text-green-500">[</span>
+              PROJECT_SHOWCASE v1.0
+              <span className="text-green-500">]</span>
+            </h1>
+          </div>
+          <div className="bg-black/80 border border-green-500/30 px-4 py-2 rounded backdrop-blur">
             <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              href="/admin"
+              className="text-green-400 font-mono text-xs hover:text-green-300 transition-colors"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+              [ENTER_ADMIN]
+            </a>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="relative pt-32 pb-16 px-4 overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <div ref={heroRef} className="mb-8 font-mono">
+            <h1 className="text-4xl md:text-6xl font-bold text-green-400 mb-4">
+              <span className="inline-block">$</span>
+              <span className="inline-block">_showcase</span>
+              <span className="inline-block">.init()</span>
+            </h1>
+            <p className="text-green-500/80 text-lg md:text-xl font-mono max-w-2xl">
+              Curated collection of digital projects. Explore innovations built
+              by developers worldwide.
+            </p>
+          </div>
+
+          {/* Terminal Search */}
+          <div ref={terminalRef} className="max-w-2xl mb-8">
+            <div className="bg-black border border-green-500/40 rounded-lg overflow-hidden">
+              <div className="bg-green-900/30 border-b border-green-500/30 px-4 py-2 flex items-center gap-2">
+                <div className="flex gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-red-500" />
+                  <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                  <div className="w-3 h-3 rounded-full bg-green-500" />
+                </div>
+                <span className="text-green-300 text-xs ml-2">
+                  search_projects.sh
+                </span>
+              </div>
+              <div className="p-4 font-mono">
+                <div className="flex items-center gap-2 text-green-400">
+                  <span className="text-green-500">$</span>
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="filter by title, description, or tags..."
+                    className="flex-1 bg-transparent outline-none text-green-300 placeholder-green-600"
+                  />
+                </div>
+                {selectedTag && (
+                  <div className="mt-3 flex items-center gap-2">
+                    <span className="text-green-500">filter:</span>
+                    <span className="bg-green-900/30 border border-green-500/50 text-green-400 px-2 py-1 text-xs">
+                      [{selectedTag.toUpperCase()}]
+                    </span>
+                    <button
+                      onClick={() => setSelectedTag(null)}
+                      className="text-green-500 hover:text-green-300 text-xs"
+                    >
+                      [clear]
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Tag Filters */}
+          {allTags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-8">
+              {allTags.map((tag) => (
+                <button
+                  key={tag}
+                  onClick={() =>
+                    setSelectedTag(selectedTag === tag ? null : tag)
+                  }
+                  className={`px-3 py-1 border text-xs font-mono transition-all ${
+                    selectedTag === tag
+                      ? 'bg-green-900/50 border-green-400 text-green-300'
+                      : 'bg-black/50 border-green-500/30 text-green-500/60 hover:border-green-400'
+                  }`}
+                >
+                  [{tag.toUpperCase()}]
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Projects Grid */}
+      <section className="pb-16 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-6 flex justify-between items-end border-b border-green-500/20 pb-2">
+            <h2 className="text-green-400 font-mono text-lg">
+              <span className="text-green-500">[</span>
+              PROJECTS
+              <span className="text-green-500">]</span>
+              <span className="text-green-500/60 ml-2">
+                ({filteredProjects.length} found)
+              </span>
+            </h2>
+          </div>
+
+          {filteredProjects.length === 0 ? (
+            <div className="text-center py-16">
+              <p className="text-green-500/50 font-mono">
+                No projects match current filters.
+              </p>
+            </div>
+          ) : (
+            <ProjectGrid
+              projects={filteredProjects}
+              onProjectClick={(project) => {
+                router.push(`/projects/${project.id}`);
+              }}
+            />
+          )}
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-green-500/20 py-8 px-4 mt-auto">
+        <div className="max-w-7xl mx-auto text-center">
+          <p className="text-green-500/50 font-mono text-xs">
+            <span className="text-green-600">[</span> BUILT WITH NEXT.JS,
+            TAILWIND, AND GSAP
+            <span className="text-green-600"> ]</span>
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </footer>
     </div>
   );
 }
