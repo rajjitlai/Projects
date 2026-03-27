@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
 
+// Routes that must be accessible WITHOUT a session
+const PUBLIC_PATHS = [
+  '/admin/login',
+  '/admin/verify',
+  '/api/admin/send-otp',
+  '/api/admin/verify-otp',
+];
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Allow the login and verify pages through unconditionally
-  if (pathname === '/admin/login' || pathname === '/admin/verify') {
+  // Allow public auth paths through unconditionally
+  if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
     return NextResponse.next();
   }
 

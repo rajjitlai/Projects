@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { updateProject, deleteProject } from '@/lib/sheets';
-import { getAuthContext, adminOnly, jsonResponse } from '@/lib/api-utils';
+import { adminOnly, jsonResponse } from '@/lib/api-utils';
+import { getSession } from '@/lib/session';
 import { success } from '@/lib/audit';
 
 export async function PUT(
@@ -8,10 +9,11 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const context = await getAuthContext();
-    const adminCheck = adminOnly(context);
-    if (adminCheck) return adminCheck;
+    const guard = await adminOnly();
+    if (guard) return guard;
 
+    const session = await getSession();
+    const user = session?.email || 'admin';
     const { id } = await params;
     const body = await request.json();
 
@@ -21,7 +23,7 @@ export async function PUT(
       route: `/api/admin/projects/${id}`,
       method: 'PUT',
       action: `updated project: ${project.title}`,
-      user: context.user!.login,
+      user,
     });
 
     return jsonResponse({ data: project }, 200);
@@ -37,18 +39,20 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const context = await getAuthContext();
-    const adminCheck = adminOnly(context);
-    if (adminCheck) return adminCheck;
+    const guard = await adminOnly();
+    if (guard) return guard;
 
+    const session = await getSession();
+    const user = session?.email || 'admin';
     const { id } = await params;
+
     await deleteProject(id);
 
     await success({
       route: `/api/admin/projects/${id}`,
       method: 'DELETE',
       action: `deleted project: ${id}`,
-      user: context.user!.login,
+      user,
     });
 
     return jsonResponse({ message: 'Project deleted' }, 200);

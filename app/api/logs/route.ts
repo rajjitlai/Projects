@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuditLogs } from '@/lib/sheets';
-import { getAuthContext, adminOnly, jsonResponse } from '@/lib/api-utils';
+import { adminOnly, jsonResponse } from '@/lib/api-utils';
 import { success } from '@/lib/audit';
+import { getSession } from '@/lib/session';
 
 export async function GET(request: NextRequest) {
   try {
-    const context = await getAuthContext();
-    const adminCheck = adminOnly(context);
-    if (adminCheck) return adminCheck;
+    const guard = await adminOnly();
+    if (guard) return guard;
 
+    const session = await getSession();
     const { searchParams } = new URL(request.url);
     const limit = searchParams.get('limit');
     const logs = await getAuditLogs(limit ? parseInt(limit) : undefined);
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest) {
       route: '/api/logs',
       method: 'GET',
       action: 'fetched audit logs',
-      user: context.user!.login,
+      user: session?.email || 'admin',
     });
 
     return jsonResponse({ data: logs }, 200);

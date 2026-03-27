@@ -1,7 +1,6 @@
 'use client';
 
 import { AuditLog as AuditLogType } from '@/types';
-import 'use client';
 import {
   Table,
   TableBody,

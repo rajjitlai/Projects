@@ -8,14 +8,13 @@ export async function GET(_request: NextRequest) {
   void _request;
   try {
     const projects = await getProjects();
-    const context = await getAuthContext();
 
     // Log the access
     await success({
       route: '/api/projects',
       method: 'GET',
       action: 'fetched all projects',
-      user: context.user?.login || 'public',
+      user: (await getAuthContext())?.email || 'public',
     });
 
     return jsonResponse({ data: projects }, 200);
