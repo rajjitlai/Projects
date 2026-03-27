@@ -1,46 +1,27 @@
-import { withAuth } from 'next-auth/middleware';
-import { isAdmin } from '@/lib/auth';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { getSession } from '@/lib/session';
 
-/**
- * Middleware to protect admin routes and API endpoints
- * This uses NextAuth's withAuth to handle session validation and redirection
- */
-export default withAuth(
-  async function middleware(req) {
-    const token = req.nextauth.token;
-    const path = req.nextUrl.pathname;
+export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
 
-    // Additional check for admin privileges on admin routes
-    if (path.startsWith('/admin') || path.startsWith('/api/admin') || path === '/api/logs') {
-      if (!token?.sub || !(await isAdmin(token.sub))) {
-        // Redirection to unauthorized if not an admin
-        return NextResponse.rewrite(new URL('/unauthorized', req.url));
-      }
-    }
-    
+  // Allow the login and verify pages through unconditionally
+  if (pathname === '/admin/login' || pathname === '/admin/verify') {
     return NextResponse.next();
-  },
-  {
-    callbacks: {
-      // authorized callback determines if the middleware logic should run
-      // return true to allow access (the middleware function above will still run for additional checks)
-      authorized: ({ token }) => !!token,
-    },
-    pages: {
-      signIn: '/admin/login',
-    },
   }
-);
 
-/**
- * Configure which routes this middleware runs on
- */
+  const session = await getSession(req);
+
+  if (!session) {
+    const loginUrl = new URL('/admin/login', req.url);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  return NextResponse.next();
+}
+
 export const config = {
   matcher: [
-    // Admin pages
     '/admin/:path*',
-    // Admin API routes
     '/api/admin/:path*',
     '/api/logs',
   ],

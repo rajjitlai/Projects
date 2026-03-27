@@ -1,25 +1,3 @@
-import { DefaultSession } from 'next-auth';
-
-declare module 'next-auth' {
-  interface Session {
-    user: {
-      id: string;
-      login: string;
-      avatar_url?: string;
-      email?: string;
-    } & DefaultSession['user'];
-  }
-
-  interface User {
-    id: string;
-    login: string;
-    avatar_url?: string;
-    email?: string;
-  }
-}
-
-declare module 'next-auth/jwt' {
-  interface JWT {
-    id: string;
-  }
-}
+// NextAuth has been removed from this project.
+// Session management is handled via signed httpOnly JWT cookies.
+// See: lib/session.ts, lib/otp.ts, lib/mailer.ts

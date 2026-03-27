@@ -1,51 +1,27 @@
-import { getServerSession } from 'next-auth';
-import { authOptions } from './auth';
 import { NextResponse } from 'next/server';
-import { isAdmin } from './auth';
-import { Session } from 'next-auth';
+import { getSession } from './session';
 
 export interface ApiHandlerContext {
-  session?: Session;
-  user?: { id: string; login: string };
-  isAdmin: boolean;
+  email: string;
 }
 
 /**
- * Get authenticated session and user info
+ * Get authenticated admin email from cookie session.
+ * For use in server-side Route Handlers (Node runtime).
  */
-export async function getAuthContext(): Promise<ApiHandlerContext> {
-  const session = await getServerSession(authOptions);
-  const user = session?.user ? {
-    id: session.user.id,
-    login: session.user.login,
-  } : undefined;
-
-  return {
-    session: session ?? undefined,
-    user,
-    isAdmin: user ? await isAdmin(user.id) : false,
-  };
+export async function getAuthContext(): Promise<ApiHandlerContext | null> {
+  const session = await getSession();
+  if (!session) return null;
+  return { email: session.email };
 }
 
 /**
- * Protect admin-only route
+ * Protect admin-only route handler. Returns error response or null if ok.
  */
-export function adminOnly(context: ApiHandlerContext): NextResponse | null {
-  if (!context.user) {
-    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
-  }
-  if (!context.isAdmin) {
-    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-  }
-  return null;
-}
-
-/**
- * Require authentication
- */
-export function requireAuth(context: ApiHandlerContext): NextResponse | null {
-  if (!context.user) {
-    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+export async function adminOnly(): Promise<NextResponse | null> {
+  const ctx = await getAuthContext();
+  if (!ctx) {
+    return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });
   }
   return null;
 }
@@ -53,9 +29,6 @@ export function requireAuth(context: ApiHandlerContext): NextResponse | null {
 /**
  * Standard JSON response helper
  */
-export function jsonResponse<T>(
-  data: T,
-  status: number = 200
-): NextResponse {
+export function jsonResponse<T>(data: T, status = 200): NextResponse {
   return NextResponse.json(data, { status });
 }

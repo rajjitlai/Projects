@@ -1,6 +1,3 @@
-import NextAuth from 'next-auth';
-import { authOptions } from '@/lib/auth';
-
-const handler = NextAuth(authOptions);
-
-export { handler as GET, handler as POST };
+// NextAuth has been removed. This route is intentionally empty.
+// Admin authentication is now handled via /api/admin/send-otp and /api/admin/verify-otp.
+export {};

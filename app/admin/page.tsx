@@ -1,62 +1,42 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Terminal } from '@/components/Terminal';
 import { Project } from '@/types';
 import { Button } from '@/components/ui/button';
 
 export default function AdminDashboard() {
-  const { data: session, status } = useSession();
   const router = useRouter();
-  const [stats, setStats] = useState({
-    total: 0,
-    lastUpdated: '',
-  });
+  const [stats, setStats] = useState({ total: 0, lastUpdated: '' });
+  const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/admin/login');
-    }
-  }, [status, router]);
-
-  useEffect(() => {
-    if (session) {
-      fetch('/api/projects')
-        .then((res) => res.json())
-        .then((data) => {
-          const projects = data.data || [];
-          setStats({
-            total: projects.length,
-            lastUpdated:
-              projects.length > 0
-                ? new Date(
-                    projects.reduce((latest: string, p: Project) =>
-                      new Date(p.createdAt) > new Date(latest) ? p.createdAt : latest,
+    fetch('/api/projects')
+      .then((res) => res.json())
+      .then((data) => {
+        const projects: Project[] = data.data || [];
+        setStats({
+          total: projects.length,
+          lastUpdated:
+            projects.length > 0
+              ? new Date(
+                  projects.reduce((latest, p) =>
+                    new Date(p.createdAt) > new Date(latest) ? p.createdAt : latest,
                     projects[0]?.createdAt || new Date().toISOString()
-                    )
-                  ).toLocaleDateString()
-                : 'N/A',
-          });
-        })
-        .catch(console.error);
-    }
-  }, [session]);
+                  )
+                ).toLocaleDateString()
+              : 'N/A',
+        });
+      })
+      .catch(console.error);
+  }, []);
 
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <div className="text-green-400 font-mono animate-pulse">
-          [LOADING...]
-        </div>
-      </div>
-    );
-  }
-
-  if (!session) {
-    return null;
-  }
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    await fetch('/api/admin/logout', { method: 'POST' });
+    router.push('/admin/login');
+  };
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
@@ -69,7 +49,7 @@ export default function AdminDashboard() {
               <span className="text-green-500">]</span>
             </h1>
             <p className="text-green-500/60 text-xs font-mono mt-1">
-             Logged in as: {session.user?.login}
+              Authenticated via SMTP-OTP
             </p>
           </div>
           <div className="flex gap-2">
@@ -86,6 +66,14 @@ export default function AdminDashboard() {
               className="border-green-500/30 text-green-400 font-mono text-xs hover:bg-green-900/30"
             >
               [VIEW_LOGS]
+            </Button>
+            <Button
+              onClick={handleLogout}
+              disabled={loggingOut}
+              variant="ghost"
+              className="text-red-400/60 font-mono text-xs hover:text-red-400 hover:bg-red-900/20"
+            >
+              {loggingOut ? '[LOGGING_OUT...]' : '[LOGOUT]'}
             </Button>
           </div>
         </div>
@@ -119,7 +107,7 @@ export default function AdminDashboard() {
               </div>
               <div className="text-green-500/60 text-xs mt-3">
                 <p>DB: GOOGLE_SHEETS</p>
-                <p>AUTH: GITHUB</p>
+                <p>AUTH: SMTP-OTP</p>
               </div>
             </div>
           </Terminal>
@@ -153,7 +141,6 @@ export default function AdminDashboard() {
           </div>
         </Terminal>
 
-        {/* Recent Activity */}
         <Terminal title="[RECENT_ACTIVITY]">
           <div className="text-green-500/60 text-sm">
             Loading recent logs...

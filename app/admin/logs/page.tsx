@@ -1,24 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { AuditLog } from '@/components/AuditLog';
 import { AuditLog as AuditLogType } from '@/types';
 import { Button } from '@/components/ui/button';
 
 export default function AdminLogsPage() {
-  const { data: session, status } = useSession();
   const router = useRouter();
   const [logs, setLogs] = useState<AuditLogType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [limit, setLimit] = useState(50);
-
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/admin/login');
-    }
-  }, [status, router]);
 
   const fetchLogs = async (limitVal: number) => {
     try {
@@ -33,12 +25,10 @@ export default function AdminLogsPage() {
   };
 
   useEffect(() => {
-    if (session) {
-      fetchLogs(limit);
-    }
-  }, [session, limit]);
+    fetchLogs(limit);
+  }, [limit]);
 
-  if (status === 'loading' || isLoading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
         <div className="text-green-400 font-mono animate-pulse">
@@ -47,8 +37,6 @@ export default function AdminLogsPage() {
       </div>
     );
   }
-
-  if (!session) return null;
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">

@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Terminal } from '@/components/Terminal';
 import { Project } from '@/types';
@@ -19,18 +18,11 @@ import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Trash2, Edit2, Plus } from 'lucide-react';
 
 export default function AdminProjectsPage() {
-  const { data: session, status } = useSession();
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/admin/login');
-    }
-  }, [status, router]);
 
   const fetchProjects = async () => {
     try {
@@ -45,10 +37,8 @@ export default function AdminProjectsPage() {
   };
 
   useEffect(() => {
-    if (session) {
-      fetchProjects();
-    }
-  }, [session]);
+    fetchProjects();
+  }, []);
 
   const handleSubmit = async (formData: {
     title: string;
@@ -98,8 +88,6 @@ export default function AdminProjectsPage() {
       </div>
     );
   }
-
-  if (!session) return null;
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
