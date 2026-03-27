@@ -85,7 +85,7 @@ export default function Home() {
           <div className="bg-black/80 border border-green-500/30 px-4 py-2 rounded backdrop-blur">
             <h1 className="text-green-400 font-mono text-sm">
               <span className="text-green-500">[</span>
-              PROJECT_SHOWCASE v1.0
+              RAJJIT_LAISHRAM.projects
               <span className="text-green-500">]</span>
             </h1>
           </div>
@@ -110,8 +110,9 @@ export default function Home() {
               <span className="inline-block">.init()</span>
             </h1>
             <p className="text-green-500/80 text-lg md:text-xl font-mono max-w-2xl">
-              Curated collection of digital projects. Explore innovations built
-              by developers worldwide.
+              A curated collection of projects by{' '}
+              <span className="text-green-400">Rajjit Laishram</span>.
+              Browse the work, filter by technology, or dive into any project.
             </p>
           </div>
 
@@ -213,11 +214,13 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-green-500/20 py-8 px-4 mt-auto">
-        <div className="max-w-7xl mx-auto text-center">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
           <p className="text-green-500/50 font-mono text-xs">
-            <span className="text-green-600">[</span> BUILT WITH NEXT.JS,
-            TAILWIND, AND GSAP
+            <span className="text-green-600">[</span> RAJJIT LAISHRAM — PROJECTS
             <span className="text-green-600"> ]</span>
+          </p>
+          <p className="text-green-900/60 font-mono text-xs">
+            NEXT.JS · TAILWIND · GSAP
           </p>
         </div>
       </footer>
