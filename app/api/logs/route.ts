@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuditLogs } from '@/lib/sheets';
-import { adminOnly, jsonResponse } from '@/lib/api-utils';
+import { authenticateSession, jsonResponse } from '@/lib/api-utils';
 import { success } from '@/lib/audit';
 import { getSession } from '@/lib/session';
 
 export async function GET(request: NextRequest) {
   try {
-    const guard = await adminOnly();
+    const guard = await authenticateSession();
     if (guard) return guard;
 
     const session = await getSession();

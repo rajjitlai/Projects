@@ -12,13 +12,14 @@ export async function GET(
     const { id } = await params;
     const project = await getProjectById(id);
     const context = await getAuthContext();
+    const userEmail = context?.email || 'public';
 
     if (!project) {
       await success({
         route: `/api/projects/${id}`,
         method: 'GET',
         action: `project not found: ${id}`,
-        user: context.user?.login || 'public',
+        user: userEmail,
       });
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     }
@@ -27,7 +28,7 @@ export async function GET(
       route: `/api/projects/${id}`,
       method: 'GET',
       action: `fetched project: ${project.title}`,
-      user: context.user?.login || 'public',
+      user: userEmail,
     });
 
     return jsonResponse({ data: project }, 200);

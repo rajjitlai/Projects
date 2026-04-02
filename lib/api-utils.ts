@@ -6,7 +6,7 @@ export interface ApiHandlerContext {
 }
 
 /**
- * Get authenticated admin email from cookie session.
+ * Get authenticated user email from cookie session.
  * For use in server-side Route Handlers (Node runtime).
  */
 export async function getAuthContext(): Promise<ApiHandlerContext | null> {
@@ -16,9 +16,9 @@ export async function getAuthContext(): Promise<ApiHandlerContext | null> {
 }
 
 /**
- * Protect admin-only route handler. Returns error response or null if ok.
+ * Protect management route handler. Returns error response or null if ok.
  */
-export async function adminOnly(): Promise<NextResponse | null> {
+export async function authenticateSession(): Promise<NextResponse | null> {
   const ctx = await getAuthContext();
   if (!ctx) {
     return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });

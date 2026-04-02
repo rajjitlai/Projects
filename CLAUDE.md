@@ -4,23 +4,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Next.js project that will become a full-stack project showcase platform with a system engineer/terminal aesthetic. The current codebase is a fresh Next.js template, but the full specification is documented in `prompt.md`.
+This is a full-stack project showcase platform with a system engineer/terminal aesthetic. It features a public-facing gallery and a secured, obfuscated admin panel.
 
-**Planned Tech Stack:**
+**Core Tech Stack:**
 - Next.js 16+ (App Router)
 - React 19
 - TypeScript (strict mode)
 - Tailwind CSS 4
-- Shadcn/ui
+- Lucide React (icons)
 - Framer Motion + GSAP (animations)
-- NextAuth.js (GitHub provider)
+- Custom SMTP-OTP Auth (nodemailer + jose JWT)
 - Google Sheets API v4 (database)
 - Cloudinary (image hosting)
 
 **Design Theme:**
 - Dark mode only with matrix green (#00ff41) accents
 - Monospace fonts (JetBrains Mono/Geist Mono)
-- Terminal/SaaS hybrid aesthetic with scanlines, blinking cursors, and bracket syntax
+- Terminal/SaaS hybrid aesthetic with scanlines and blinking cursors
 
 ## Critical Warnings
 
@@ -47,7 +47,7 @@ npx eslint app/
 npx eslint components/
 ```
 
-## Project Structure (Planned)
+## Project Structure
 
 ```
 app/
@@ -55,34 +55,32 @@ app/
 ├── page.tsx                    # Public project listing (home)
 ├── globals.css                 # Global styles + Tailwind + theme vars
 ├── projects/[id]/page.tsx      # Single project detail page
-├── admin/
+├── ace/                        # Obfuscated admin panel (replaces /admin)
 │   ├── page.tsx                # Admin dashboard
 │   ├── projects/page.tsx       # Project management
-│   └── logs/page.tsx           # Audit logs viewer
+│   ├── logs/page.tsx           # Audit logs viewer
+│   ├── login/page.tsx          # OTP Request page
+│   └── verify/page.tsx         # OTP Verification page
 └── api/
     ├── projects/route.ts       # GET all projects
-    ├── projects/[id]/route.ts  # GET/PUT/DELETE single project
-    ├── admin/projects/route.ts # POST/PUT/DELETE (admin only)
+    ├── projects/[id]/route.ts  # GET single project
+    ├── ace/                    # Protected admin APIs
+    │   ├── projects/route.ts   # CRUD operations
+    │   ├── upload/route.ts     # Cloudinary image upload
+    │   ├── send-otp/route.ts   # Auth step 1
+    │   ├── verify-otp/route.ts # Auth step 2
+    │   └── logout/route.ts     # Session termination
     └── logs/route.ts           # Audit logs API
 
-components/
-├── ui/                         # Shadcn/ui components (auto-generated)
-├── ProjectCard.tsx
-├── ProjectGrid.tsx
-├── Terminal.tsx
-├── AuditLog.tsx
-└── AdminForm.tsx
-
-lib/
-├── sheets.ts                   # Google Sheets read/write helpers
-├── audit.ts                    # Audit log writer function
-└── auth.ts                     # NextAuth configuration
-
-types/
-└── index.ts                    # TypeScript type definitions
-
-public/                         # Static assets (favicon, images, etc.)
+proxy.ts                        # Edge middleware for route protection
 ```
+
+## Authentication
+
+Authentication is handled via a custom SMTP-OTP flow:
+1. Session verification via `proxy.ts` (middleware).
+2. JWT tokens stored in `httpOnly` secure cookies.
+3. No external auth providers (GitHub, etc.) are used.
 
 ## TypeScript Configuration
 
@@ -113,11 +111,11 @@ Required (see `prompt.md` for full list):
 ```
 GOOGLE_SERVICE_ACCOUNT_JSON=
 SHEET_ID=
-NEXTAUTH_SECRET=
-NEXTAUTH_URL=
-GITHUB_CLIENT_ID=
-GITHUB_CLIENT_SECRET=
-ADMIN_GITHUB_ID=
+SMTP_HOST=
+SMTP_PORT=
+SMTP_USER=
+SMTP_PASS=
+JWT_SECRET=
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=
 ```
 
@@ -149,7 +147,7 @@ NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=
 
 ## Setup Instructions (when starting implementation)
 
-1. Install additional dependencies: `npm install googleapis framer-motion gsap next-auth`
+1. Install additional dependencies: `npm install googleapis framer-motion gsap nodemailer jose`
 2. Run: `npx shadcn@latest init` (select dark mode, slate base — override later)
 3. Add Shadcn components: Table, Badge, Button, Input, Textarea, Card, Dialog
 4. Create Google Sheets with "projects" and "audit_logs" tabs
@@ -158,4 +156,4 @@ NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=
 
 ## Current State
 
-The codebase is a fresh `create-next-app` template with minimal changes. The real implementation begins when building out the feature set described in `prompt.md`. Start by reading `prompt.md` thoroughly before making any architectural decisions.
+The project is **fully implemented** (v1.0.0). It features a functional project management suite, Cloudinary integration for image uploads, and a robust audit logging system. The admin routes have been obfuscated to `/ace` for enhanced security.

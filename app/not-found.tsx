@@ -17,45 +17,48 @@ export default function NotFound() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-6">
-      <div className="w-full max-w-xl font-mono">
+    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-6 overflow-hidden relative">
+      {/* Scanline overlay */}
+      <div className="fixed inset-0 pointer-events-none z-50 bg-[linear-gradient(transparent_50%,rgba(0,255,65,0.03)_100%)] bg-[length:100%_4px]" />
 
+      <div className="w-full max-w-xl font-mono relative z-10">
         {/* Terminal window */}
-        <div className="border border-green-500/30 bg-black/60">
+        <div className="border border-green-500/30 bg-black/80 backdrop-blur-sm shadow-[0_0_30px_rgba(0,255,65,0.1)]">
           {/* Title bar */}
-          <div className="flex items-center gap-2 px-4 py-2 border-b border-green-500/20 bg-black/40">
-            <div className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
-            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/70" />
-            <div className="w-2.5 h-2.5 rounded-full bg-green-500/70" />
-            <span className="ml-2 text-green-500/40 text-xs">404.sh</span>
+          <div className="flex items-center gap-2 px-4 py-2 border-b border-green-500/20 bg-green-900/10">
+            <div className="w-2.5 h-2.5 rounded-full bg-red-500/50" />
+            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/50" />
+            <div className="w-2.5 h-2.5 rounded-full bg-green-500/50" />
+            <span className="ml-2 text-green-500/60 text-[10px] uppercase tracking-widest">system_error.log</span>
           </div>
 
           {/* Terminal body */}
-          <div className="p-6 space-y-3 text-sm leading-relaxed">
-            <p className="text-green-500/50">$ navigate --path &quot;{typeof window !== 'undefined' ? window.location.pathname : '/...'}&quot;</p>
-
-            <p className="text-red-400">
-              Error: ENOENT: no such file or directory
-            </p>
-
-            <p className="text-green-500/50">$ --exit-code 404</p>
-
-            <div className="py-4">
-              <p className="text-4xl font-bold text-green-400 tracking-tight">404</p>
-              <p className="text-green-500/60 mt-1 text-base">Page not found.</p>
+          <div className="p-6 space-y-4 text-sm leading-relaxed">
+            <div className="space-y-1">
+              <p className="text-green-500/50 text-xs">$ locate_resource --id &quot;{typeof window !== 'undefined' ? window.location.pathname : '/...'}&quot;</p>
+              <p className="text-red-400 font-bold">
+                [ERROR] 404_NOT_FOUND: Resource pointer is invalid.
+              </p>
             </div>
 
-            <p className="text-green-500/50">
-              The requested resource does not exist or has been moved.
+            <div className="py-6 border-y border-green-500/10">
+              <p className="text-6xl font-bold text-green-400/90 tracking-tighter drop-shadow-[0_0_10px_rgba(0,255,65,0.3)]">404</p>
+              <p className="text-green-500/80 mt-2 text-lg uppercase tracking-tight">Access Denied / Not Found</p>
+            </div>
+
+            <p className="text-green-500/60 text-xs italic">
+              The requested virtual address could not be mapped to any physical resource on this node.
             </p>
 
-            <div className="pt-2 flex items-center gap-1 text-green-400">
-              <span>$ </span>
-              <span>_</span>
-              <span
-                ref={cursorRef}
-                className="inline-block w-2 h-4 bg-green-400 ml-0.5 translate-y-px"
-              />
+            <div className="pt-2 flex items-center gap-2 text-green-400">
+              <span className="text-green-500">$</span>
+              <div className="flex items-center">
+                <span className="animate-pulse">_</span>
+                <span
+                  ref={cursorRef}
+                  className="inline-block w-2.5 h-5 bg-green-500/50 ml-1 shadow-[0_0_8px_rgba(0,255,65,0.5)]"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -67,12 +70,6 @@ export default function NotFound() {
             className="hover:text-green-400 transition-colors border-b border-transparent hover:border-green-400/40"
           >
             cd ~/home
-          </Link>
-          <Link
-            href="/admin"
-            className="hover:text-green-400 transition-colors border-b border-transparent hover:border-green-400/40"
-          >
-            cd ~/admin
           </Link>
           <button
             onClick={() => window.history.back()}

@@ -12,14 +12,14 @@ const transporter = nodemailer.createTransport({
 
 export async function sendOTPEmail(to: string, otp: string): Promise<void> {
   await transporter.sendMail({
-    from: `"Projects Admin" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+    from: `"Projects Access" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
     to,
-    subject: '[ADMIN] Your one-time access code',
-    text: `Your admin access code is: ${otp}\n\nThis code expires in 5 minutes. Do not share it.`,
+    subject: '[ACCESS] Your one-time verification code',
+    text: `Your access code is: ${otp}\n\nThis code expires in 5 minutes. Do not share it.`,
     html: `
       <div style="background:#0a0a0a;color:#4ade80;font-family:monospace;padding:32px;border:1px solid #166534;max-width:480px">
-        <h2 style="color:#4ade80;margin-top:0">[ADMIN_ACCESS]</h2>
-        <p style="color:#6ee7b7;font-size:14px">Your one-time access code is:</p>
+        <h2 style="color:#4ade80;margin-top:0">[ACCESS_PORTAL]</h2>
+        <p style="color:#6ee7b7;font-size:14px">Your one-time verification code is:</p>
         <div style="font-size:36px;font-weight:bold;letter-spacing:8px;color:#4ade80;padding:16px 0">
           ${otp}
         </div>

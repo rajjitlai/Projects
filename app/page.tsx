@@ -89,13 +89,8 @@ export default function Home() {
               <span className="text-green-500">]</span>
             </h1>
           </div>
-          <div className="bg-black/80 border border-green-500/30 px-4 py-2 rounded backdrop-blur">
-            <a
-              href="/admin"
-              className="text-green-400 font-mono text-xs hover:text-green-300 transition-colors"
-            >
-              [ENTER_ADMIN]
-            </a>
+          <div className="bg-black/80 border border-green-500/30 px-4 py-2 rounded backdrop-blur opacity-0 pointer-events-none">
+            {/* Admin entry hidden */}
           </div>
         </div>
       </header>
@@ -220,7 +215,7 @@ export default function Home() {
             <span className="text-green-600"> ]</span>
           </p>
           <p className="text-green-900/60 font-mono text-xs">
-            NEXT.JS · TAILWIND · GSAP
+            NEXT.JS · TAILWIND · GSAP · [V1.0.0]
           </p>
         </div>
       </footer>

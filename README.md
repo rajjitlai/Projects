@@ -7,7 +7,7 @@ A personal project showcase platform built to display development work in a stru
 The platform is split into two distinct surfaces:
 
 - **Public Site** — A filterable, searchable grid of projects with individual detail pages built with Incremental Static Regeneration (ISR).
-- **Admin Panel** — A protected control panel for creating, editing, and deleting project entries, accessible only to a single authorized administrator via a one-time email code.
+- **Admin Panel** — A protected control panel for creating, editing, and deleting project entries, accessible only via a custom obfuscated route (`/ace`) to a single authorized administrator via a one-time email code.
 
 ## Tech Stack
 
@@ -26,24 +26,24 @@ The platform is split into two distinct surfaces:
 
 Authentication is handled without any third-party OAuth provider or database. The flow is:
 
-1. Admin visits `/admin/login` and submits their email.
+1. Admin visits `/ace/login` and submits their email.
 2. The server validates the email against `ADMIN_EMAIL` and sends a 6-digit OTP via SMTP.
-3. Admin visits `/admin/verify` and enters the OTP.
+3. Admin visits `/ace/verify` and enters the OTP.
 4. On success, a signed `httpOnly` JWT cookie is set (8h expiry).
-5. All `/admin` and `/api/admin` routes are protected by the middleware cookie check.
+5. All `/ace` and `/api/ace` routes are protected by the middleware cookie check.
 
 ## Project Structure
 
 ```
 app/
-  admin/           Admin panel pages (login, verify, dashboard, projects, logs)
-  api/             Route handlers (projects, admin CRUD, OTP auth, logs)
+  ace/             Admin panel pages (login, verify, dashboard, projects, logs)
+  api/             Route handlers (projects, ace CRUD, OTP auth, logs)
   projects/[id]/   Dynamic project detail pages (ISR)
   page.tsx         Public landing page
 components/        Shared UI components (Terminal, AdminForm, ProjectGrid, etc.)
 lib/               Core logic (sheets, otp, mailer, session, auth, api-utils)
 types/             Shared TypeScript type definitions
-middleware.ts      Edge middleware for protected route authentication
+proxy.ts           Edge middleware for protected route authentication
 ```
 
 ## Environment Variables
@@ -78,7 +78,7 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to view the public site.
-The admin panel is at [http://localhost:3000/admin](http://localhost:3000/admin).
+The admin panel is at [http://localhost:3000/ace](http://localhost:3000/ace).
 
 ## Data Model (Google Sheets)
 

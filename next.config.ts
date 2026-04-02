@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  skipTrailingSlashRedirect: false,
+  trailingSlash: false,
   images: {
     remotePatterns: [
       {
@@ -12,6 +14,16 @@ const nextConfig: NextConfig = {
         hostname: '*.cloudinary.com',
       },
     ],
+  },
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.projects.rjsblog.in' }],
+        destination: 'https://projects.rjsblog.in/:path*',
+        permanent: true,
+      },
+    ];
   },
 };
 

@@ -1,3 +1,3 @@
 // NextAuth has been removed. This route is intentionally empty.
-// Admin authentication is now handled via /api/admin/send-otp and /api/admin/verify-otp.
+// Admin authentication is now handled via /api/ace/send-otp and /api/ace/verify-otp.
 export {};
