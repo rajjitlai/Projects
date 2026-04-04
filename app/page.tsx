@@ -11,7 +11,6 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const heroRef = useRef<HTMLDivElement>(null);
-  const terminalRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   const filteredProjects = useMemo(() => {
@@ -69,10 +68,7 @@ export default function Home() {
     );
   }, []);
 
-  // Get all unique tags
-  const allTags = Array.from(
-    new Set(projects.flatMap((p) => p.tags.map((t) => t.toLowerCase())))
-  );
+
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-green-400">
@@ -81,7 +77,7 @@ export default function Home() {
 
       {/* Header */}
       <header className="fixed top-4 left-4 right-4 z-40">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-4 justify-between items-center">
           <div className="bg-black/80 border border-green-500/30 px-4 py-2 rounded backdrop-blur">
             <h1 className="text-green-400 font-mono text-sm">
               <span className="text-green-500">[</span>
@@ -89,90 +85,60 @@ export default function Home() {
               <span className="text-green-500">]</span>
             </h1>
           </div>
-          <div className="bg-black/80 border border-green-500/30 px-4 py-2 rounded backdrop-blur opacity-0 pointer-events-none">
-            {/* Admin entry hidden */}
+          
+          {/* Header Search */}
+          <div className="w-full md:w-96 bg-black/80 border border-green-500/30 px-3 py-1.5 rounded backdrop-blur font-mono flex items-center gap-2">
+            <span className="text-green-500/60 text-xs">$</span>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="find projects..."
+              className="flex-1 bg-transparent outline-none text-green-300 placeholder-green-800 text-xs"
+            />
+            {searchTerm && (
+              <button 
+                onClick={() => setSearchTerm('')}
+                className="text-green-500/40 hover:text-green-400 text-[10px]"
+              >
+                [X]
+              </button>
+            )}
           </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-16 px-4 overflow-hidden">
+      {/* Hero Section - More Compact */}
+      <section className="relative pt-24 pb-8 px-4 overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          <div ref={heroRef} className="mb-8 font-mono">
-            <h1 className="text-4xl md:text-6xl font-bold text-green-400 mb-4">
+          <div ref={heroRef} className="mb-4 font-mono">
+            <h1 className="text-3xl md:text-5xl font-bold text-green-400 mb-2">
               <span className="inline-block">$</span>
               <span className="inline-block">_showcase</span>
               <span className="inline-block">.init()</span>
             </h1>
-            <p className="text-green-500/80 text-lg md:text-xl font-mono max-w-2xl">
-              A curated collection of projects by{' '}
-              <span className="text-green-400">Rajjit Laishram</span>.
-              Browse the work, filter by technology, or dive into any project.
+            <p className="text-green-500/60 text-sm md:text-base font-mono max-w-xl">
+              Curated collection by <span className="text-green-400">Rajjit Laishram</span>.
+              Explore the lab.
             </p>
           </div>
 
-          {/* Terminal Search */}
-          <div ref={terminalRef} className="max-w-2xl mb-8">
-            <div className="bg-black border border-green-500/40 rounded-lg overflow-hidden">
-              <div className="bg-green-900/30 border-b border-green-500/30 px-4 py-2 flex items-center gap-2">
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-500" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                  <div className="w-3 h-3 rounded-full bg-green-500" />
-                </div>
-                <span className="text-green-300 text-xs ml-2">
-                  search_projects.sh
-                </span>
-              </div>
-              <div className="p-4 font-mono">
-                <div className="flex items-center gap-2 text-green-400">
-                  <span className="text-green-500">$</span>
-                  <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="filter by title, description, or tags..."
-                    className="flex-1 bg-transparent outline-none text-green-300 placeholder-green-600"
-                  />
-                </div>
-                {selectedTag && (
-                  <div className="mt-3 flex items-center gap-2">
-                    <span className="text-green-500">filter:</span>
-                    <span className="bg-green-900/30 border border-green-500/50 text-green-400 px-2 py-1 text-xs">
-                      [{selectedTag.toUpperCase()}]
-                    </span>
-                    <button
-                      onClick={() => setSelectedTag(null)}
-                      className="text-green-500 hover:text-green-300 text-xs"
-                    >
-                      [clear]
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
+          {/* Category Filters */}
+          <div className="flex flex-wrap gap-2 mt-6">
+            {['All', 'Web', 'Apps', 'Projects', 'Demos', 'Hackathons', 'AI Vibe Coded'].map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedTag(cat === 'All' ? null : cat)}
+                className={`px-3 py-1 border text-[10px] font-mono transition-all ${
+                  (cat === 'All' && !selectedTag) || selectedTag === cat
+                    ? 'bg-green-900/50 border-green-400 text-green-300'
+                    : 'bg-black/50 border-green-500/20 text-green-500/40 hover:border-green-500/60'
+                }`}
+              >
+                {cat.toUpperCase()}
+              </button>
+            ))}
           </div>
-
-          {/* Tag Filters */}
-          {allTags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-8">
-              {allTags.map((tag) => (
-                <button
-                  key={tag}
-                  onClick={() =>
-                    setSelectedTag(selectedTag === tag ? null : tag)
-                  }
-                  className={`px-3 py-1 border text-xs font-mono transition-all ${
-                    selectedTag === tag
-                      ? 'bg-green-900/50 border-green-400 text-green-300'
-                      : 'bg-black/50 border-green-500/30 text-green-500/60 hover:border-green-400'
-                  }`}
-                >
-                  [{tag.toUpperCase()}]
-                </button>
-              ))}
-            </div>
-          )}
         </div>
       </section>
 
@@ -215,7 +181,7 @@ export default function Home() {
             <span className="text-green-600"> ]</span>
           </p>
           <p className="text-green-900/60 font-mono text-xs">
-            NEXT.JS · TAILWIND · GSAP · [V1.0.0]
+            NEXT.JS · TAILWIND · GSAP · [V1.2.0]
           </p>
         </div>
       </footer>

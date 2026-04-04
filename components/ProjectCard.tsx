@@ -74,46 +74,49 @@ export function ProjectCard({ project, onClick }: ProjectCardProps) {
       </div>
 
       {/* Content */}
-      <div className="p-4 space-y-3">
-        {/* Project ID */}
-        <div className="text-green-500/60 text-xs font-mono">
-          [{project.id}]
+      <div className="p-4 flex flex-col flex-1 min-h-[180px]">
+        {/* Category & ID */}
+        <div className="flex justify-between items-center mb-1">
+          <div className="text-green-500/40 text-[10px] font-mono uppercase tracking-wider">
+            {project.category || 'General'}
+          </div>
+          <div className="text-green-500/60 text-[10px] font-mono">
+            #{project.id.slice(-4)}
+          </div>
         </div>
 
         {/* Title */}
-        <h3 className="text-green-400 font-mono font-semibold text-lg leading-tight group-hover:text-green-300 transition-colors">
+        <h3 className="text-green-400 font-mono font-semibold text-base leading-tight group-hover:text-green-300 transition-colors line-clamp-1 mb-2">
           {project.title}
         </h3>
 
         {/* Description */}
-        <p className="text-green-300/70 text-sm line-clamp-2 leading-relaxed">
+        <p className="text-green-300/70 text-xs line-clamp-2 leading-relaxed flex-1">
           {project.description}
         </p>
 
         {/* Tags */}
-        <div className="flex flex-wrap gap-2">
-          {project.tags.slice(0, 4).map((tag) => (
+        <div className="flex flex-wrap gap-1.5 my-3">
+          {project.tags.slice(0, 3).map((tag) => (
             <Badge
               key={tag}
               variant="outline"
-              className="border-green-500/50 text-green-400 text-[10px] px-2 py-0.5 font-mono bg-black/50 hover:bg-green-900/30"
+              className="border-green-500/30 text-green-400 text-[9px] px-1.5 py-0 font-mono bg-black/50"
             >
-              [{tag.toUpperCase()}]
+              #{tag.toLowerCase()}
             </Badge>
           ))}
-          {project.tags.length > 4 && (
-            <Badge
-              variant="outline"
-              className="border-green-500/50 text-green-500/60 text-[10px] px-2 py-0.5 font-mono bg-black/50"
-            >
-              [+{project.tags.length - 4}]
-            </Badge>
+          {project.tags.length > 3 && (
+            <span className="text-green-500/40 text-[9px] font-mono self-center">
+              +{project.tags.length - 3}
+            </span>
           )}
         </div>
 
         {/* Author */}
-        <div className="text-green-500/50 text-xs font-mono pt-1 border-t border-green-500/20">
-          AUTHOR: {project.author}
+        <div className="text-[10px] font-mono pt-2 border-t border-green-500/10 flex justify-between items-center">
+          <span className="text-green-500/30 uppercase">Author:</span>
+          <span className="text-green-500/60">{project.author}</span>
         </div>
       </div>
 

@@ -7,6 +7,9 @@ export interface Project {
   liveUrl?: string;
   repoUrl?: string;
   tags: string[];
+  category: string;
+  whyCreated?: string;
+  problemSolved?: string;
   author: string;
   featured: boolean;
   createdAt: string;
@@ -37,6 +40,9 @@ export interface ProjectFormData {
   liveUrl?: string;
   repoUrl?: string;
   tags: string;
+  category: string;
+  whyCreated?: string;
+  problemSolved?: string;
   author: string;
   featured: boolean;
 }

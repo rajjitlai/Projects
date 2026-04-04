@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     const user = session?.email || 'admin';
 
     const body = await request.json();
-    const { title, description, image, liveUrl, repoUrl, tags, author, featured } = body;
+    const { title, description, image, liveUrl, repoUrl, tags, author, featured, category, whyCreated, problemSolved } = body;
 
     if (!title || !description || !image || !author) {
       await logError({
@@ -37,6 +37,9 @@ export async function POST(request: NextRequest) {
       tags: Array.isArray(tags) ? tags : tags?.split(',').map((t: string) => t.trim()) || [],
       author,
       featured: featured || false,
+      category: category || 'General',
+      whyCreated: whyCreated || '',
+      problemSolved: problemSolved || '',
     });
 
     await success({

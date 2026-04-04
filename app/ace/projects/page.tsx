@@ -14,7 +14,12 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Trash2, Edit2, Plus } from 'lucide-react';
 
 export default function AceManagementPage() {
@@ -214,14 +219,14 @@ export default function AceManagementPage() {
           </div>
         </Terminal>
 
-        {/* Edit/Create Sheet */}
-        <Sheet open={isFormOpen} onOpenChange={setIsFormOpen}>
-          <SheetContent className="bg-[#0a0a0a] border-green-500/30 text-green-400 font-mono max-w-2xl overflow-y-auto">
-            <SheetHeader className="mb-4">
-              <SheetTitle className="text-green-400 font-mono">
+        {/* Edit/Create Dialog */}
+        <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+          <DialogContent className="bg-[#0a0a0a] border-green-500/30 text-green-400 font-mono max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader className="mb-4">
+              <DialogTitle className="text-green-400 font-mono text-xl">
                 {editingProject ? '[UPDATE_RECORD]' : '[CREATE_RECORD]'}
-              </SheetTitle>
-            </SheetHeader>
+              </DialogTitle>
+            </DialogHeader>
             <div className="mt-4">
               <AceForm
                 project={editingProject}
@@ -232,8 +237,8 @@ export default function AceManagementPage() {
                 }}
               />
             </div>
-          </SheetContent>
-        </Sheet>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );

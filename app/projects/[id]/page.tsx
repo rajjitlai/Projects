@@ -99,10 +99,36 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
               </Terminal>
 
               <Terminal title="analysis.txt">
-                <div className="space-y-4 text-green-300/90 leading-relaxed">
+                <div className="space-y-4 text-green-300/90 leading-relaxed text-sm">
                   <p>{project.description}</p>
                 </div>
               </Terminal>
+
+              {project.whyCreated && (
+                <Terminal title="motivation.log">
+                  <div className="space-y-3">
+                    <h3 className="text-green-500/80 text-xs font-bold uppercase tracking-wider mb-2">
+                      [WHY_I_CREATED_THIS]
+                    </h3>
+                    <div className="text-green-300/80 text-sm leading-relaxed italic">
+                      &quot;{project.whyCreated}&quot;
+                    </div>
+                  </div>
+                </Terminal>
+              )}
+
+              {project.problemSolved && (
+                <Terminal title="problem_solved.sh">
+                  <div className="space-y-3">
+                    <h3 className="text-green-400/80 text-xs font-bold uppercase tracking-wider mb-2">
+                      [SOLUTION_OVERVIEW]
+                    </h3>
+                    <div className="text-green-400/70 text-sm leading-relaxed font-mono bg-green-950/20 border-l-2 border-green-500/30 pl-4 py-2">
+                      {project.problemSolved}
+                    </div>
+                  </div>
+                </Terminal>
+              )}
             </div>
 
             {/* Sidebar / Metadata */}

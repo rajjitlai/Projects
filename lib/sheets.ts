@@ -28,7 +28,7 @@ export async function getProjects(): Promise<Project[]> {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
-      range: 'projects!A2:J', // Skip header row
+      range: 'projects!A2:M', // Skip header row, including columns K, L, M
     });
 
     const rows = response.data.values || [];
@@ -39,10 +39,13 @@ export async function getProjects(): Promise<Project[]> {
       image: row[3] as string,
       liveUrl: row[4] as string,
       repoUrl: row[5] as string,
-      tags: (row[6] as string).split(',').map((t) => t.trim()),
+      tags: (row[6] as string || '').split(',').map((t) => t.trim()).filter(Boolean),
       author: row[7] as string,
       featured: row[8] === 'TRUE' || row[8] === true,
       createdAt: row[9] as string,
+      category: row[10] as string || 'General',
+      whyCreated: row[11] as string || '',
+      problemSolved: row[12] as string || '',
     }));
   } catch (error) {
     console.error('Error fetching projects:', error);
@@ -70,12 +73,15 @@ export async function createProject(project: Omit<Project, 'id' | 'createdAt'>):
     project.author,
     project.featured ? 'TRUE' : 'FALSE',
     createdAt,
+    project.category || 'General',
+    project.whyCreated || '',
+    project.problemSolved || '',
   ]];
 
   try {
     await sheets.spreadsheets.values.append({
       spreadsheetId: SHEET_ID,
-      range: 'projects!A2:J',
+      range: 'projects!A2:M',
       valueInputOption: 'RAW',
       requestBody: { values },
     });
@@ -110,6 +116,9 @@ export async function updateProject(id: string, updates: Partial<Omit<Project, '
     updatedProject.author,
     updatedProject.featured ? 'TRUE' : 'FALSE',
     updatedProject.createdAt,
+    updatedProject.category || 'General',
+    updatedProject.whyCreated || '',
+    updatedProject.problemSolved || '',
   ]];
 
   // Find row number (header + 1-based index)
@@ -118,7 +127,7 @@ export async function updateProject(id: string, updates: Partial<Omit<Project, '
   try {
     await sheets.spreadsheets.values.update({
       spreadsheetId: SHEET_ID,
-      range: `projects!A${rowIndex}:J${rowIndex}`,
+      range: `projects!A${rowIndex}:M${rowIndex}`,
       valueInputOption: 'RAW',
       requestBody: { values },
     });

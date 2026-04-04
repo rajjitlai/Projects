@@ -21,20 +21,46 @@ export function AceForm({ project, onSubmit, onCancel }: AceFormProps) {
     liveUrl: '',
     repoUrl: '',
     tags: [],
+    category: 'Web',
+    whyCreated: '',
+    problemSolved: '',
     author: 'Rajjit Laishram',
     featured: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [tagInput, setTagInput] = useState('');
 
+  // Draft persistence
   useEffect(() => {
-    if (project) {
+    const draftKey = `project_draft_${project?.id || 'new'}`;
+    if (!project) {
+      const savedDraft = localStorage.getItem(draftKey);
+      if (savedDraft) {
+        try {
+          const parsed = JSON.parse(savedDraft);
+          setFormData((prev) => ({ ...prev, ...parsed }));
+          setTagInput(parsed.tags?.join(', ') || '');
+        } catch (e) {
+          console.error('Failed to parse draft:', e);
+        }
+      }
+    } else {
       setFormData({
         ...project,
         tags: project.tags || [],
       });
+      setTagInput(project.tags?.join(', ') || '');
     }
   }, [project]);
+
+  useEffect(() => {
+    const draftKey = `project_draft_${project?.id || 'new'}`;
+    const timeout = setTimeout(() => {
+      localStorage.setItem(draftKey, JSON.stringify(formData));
+    }, 1000);
+    return () => clearTimeout(timeout);
+  }, [formData, project]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -60,15 +86,24 @@ export function AceForm({ project, onSubmit, onCancel }: AceFormProps) {
     }
   };
 
+  const handleTagChange = (value: string) => {
+    setTagInput(value);
+    const tags = value.split(/[,,]/).map((t) => t.trim()).filter(Boolean);
+    setFormData((prev) => ({ ...prev, tags }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
       await onSubmit(formData);
+      localStorage.removeItem(`project_draft_${project?.id || 'new'}`);
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const categories = ['Web', 'Apps', 'Projects', 'Demos', 'Hackathons', 'AI Vibe Coded', 'Other'];
 
   return (
     <Terminal title={project ? '[EDIT_RECORD]' : '[NEW_RECORD]'} glow>
@@ -99,8 +134,65 @@ export function AceForm({ project, onSubmit, onCancel }: AceFormProps) {
                 setFormData({ ...formData, description: e.target.value })
               }
               className="bg-black border-green-500/30 text-green-300 font-mono focus:border-green-400 focus:ring-green-400/20 min-h-24"
-              placeholder="Enter description..."
+              placeholder="Enter short description..."
               required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-green-400 text-xs font-mono block">
+              CATEGORY:
+            </label>
+            <select
+              value={formData.category}
+              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              className="w-full bg-black border border-green-500/30 text-green-300 font-mono text-sm p-2 outline-none focus:border-green-400"
+            >
+              {categories.map((c) => (
+                <option key={c} value={c}>
+                  {c.toUpperCase()}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-green-400 text-xs font-mono block">
+              TAGS (comma separated):
+            </label>
+            <Input
+              value={tagInput}
+              onChange={(e) => handleTagChange(e.target.value)}
+              className="bg-black border-green-500/30 text-green-300 font-mono focus:border-green-400 focus:ring-green-400/20"
+              placeholder="react, typescript..."
+            />
+          </div>
+
+          <div className="space-y-2 md:col-span-2">
+            <label className="text-green-400 text-xs font-mono block">
+              WHY I CREATED THIS:
+            </label>
+            <Textarea
+              value={formData.whyCreated}
+              onChange={(e) =>
+                setFormData({ ...formData, whyCreated: e.target.value })
+              }
+              className="bg-black border-green-500/30 text-green-300 font-mono focus:border-green-400 focus:ring-green-400/20 min-h-20"
+              placeholder="The inspiration behind this project..."
+            />
+          </div>
+
+          <div className="space-y-2 md:col-span-2">
+            <label className="text-green-400 text-xs font-mono block">
+              PROBLEM IT SOLVES:
+            </label>
+            <Textarea
+              value={formData.problemSolved}
+              onChange={(e) =>
+                setFormData({ ...formData, problemSolved: e.target.value })
+              }
+              className="bg-black border-green-500/30 text-green-300 font-mono focus:border-green-400 focus:ring-green-400/20 min-h-20"
+              placeholder="What specific issue does this project address?"
             />
           </div>
 
@@ -148,23 +240,6 @@ export function AceForm({ project, onSubmit, onCancel }: AceFormProps) {
               }
               className="bg-black border-green-500/30 text-green-300 font-mono focus:border-green-400 focus:ring-green-400/20"
               required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-green-400 text-xs font-mono block">
-              TAGS (comma-separated):
-            </label>
-            <Input
-              value={formData.tags?.join(', ')}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  tags: e.target.value.split(',').map((t) => t.trim()).filter(Boolean),
-                })
-              }
-              className="bg-black border-green-500/30 text-green-300 font-mono focus:border-green-400 focus:ring-green-400/20"
-              placeholder="react, typescript..."
             />
           </div>
 
