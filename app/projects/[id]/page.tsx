@@ -32,6 +32,8 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
   };
 }
 
+import { ReviewSystem } from '@/components/ReviewSystem';
+
 export default async function ProjectPage({ params }: ProjectPageProps) {
   const { id } = await params;
   const project = await getProjectById(id);
@@ -61,8 +63,10 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         <div className="space-y-8">
           {/* Hero Section */}
           <div className="space-y-4">
-            <div className="text-green-500/60 text-xs">
-              VECTOR_ID: {project.id}
+            <div className="flex justify-between items-start">
+              <div className="text-green-500/60 text-[10px] uppercase tracking-widest">
+                VECTOR_ID: {project.id} // CATEGORY: {project.category}
+              </div>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-green-400">
               <span className="text-green-500">$</span> {project.title}
@@ -72,9 +76,9 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 <Badge 
                   key={tag} 
                   variant="outline" 
-                  className="border-green-500/50 text-green-400 bg-green-900/10"
+                  className="border-green-500/30 text-green-400 bg-green-900/10 text-[10px] uppercase font-mono"
                 >
-                  [{tag.toUpperCase()}]
+                  {tag}
                 </Badge>
               ))}
             </div>
@@ -129,12 +133,15 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                   </div>
                 </Terminal>
               )}
+
+              {/* Review System Integration */}
+              <ReviewSystem projectId={project.id} tags={project.tags} />
             </div>
 
             {/* Sidebar / Metadata */}
             <div className="space-y-6">
               <Terminal title="links.sh">
-                <div className="flex flex-wrap gap-4 pt-4">
+                <div className="flex flex-wrap gap-4 pt-2">
               {project.liveUrl && (
                 <a
                   href={project.liveUrl}
@@ -169,18 +176,28 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                   <div className="flex justify-between border-b border-green-900/30 pb-2">
                     <span className="text-green-500/60 font-bold">INITIALIZED:</span>
                     <span className="text-green-400">
-                      {new Date(project.createdAt).toLocaleDateString()}
+                      {project.startDate ? new Date(project.startDate).toLocaleDateString() : 'N/A'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between border-b border-green-900/30 pb-2">
+                    <span className="text-green-500/60 font-bold">COMPLETED:</span>
+                    <span className="text-green-400">
+                      {project.completionDate ? new Date(project.completionDate).toLocaleDateString() : 'ACTIVE'}
                     </span>
                   </div>
                   <div className="flex justify-between border-b border-green-900/30 pb-2">
                     <span className="text-green-500/60 font-bold">STATUS:</span>
-                    <span className="text-green-400 animate-pulse">OPERATIONAL</span>
+                    <span className={`text-green-400 ${!project.completionDate ? 'animate-pulse' : ''}`}>
+                      {project.completionDate ? 'PRODUCTION' : 'DEVELOPMENT'}
+                    </span>
                   </div>
                   <div className="pt-2">
-                    <div className="text-green-500/40 text-[10px] uppercase mb-2">Technological Stack:</div>
+                    <div className="text-green-500/40 text-[10px] uppercase mb-2">Stack & Capabilities:</div>
                     <div className="flex flex-wrap gap-1">
                       {project.tags.map(t => (
-                        <span key={t} className="text-[10px] text-green-500/60"># {t}</span>
+                        <span key={t} className="text-[10px] text-green-500/60 bg-green-900/10 px-1.5 py-0.5 rounded border border-green-500/10 hover:border-green-500/30 transition-colors">
+                          $ {t}
+                        </span>
                       ))}
                     </div>
                   </div>
@@ -201,11 +218,17 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         </div>
       </main>
 
-      <footer className="border-t border-green-500/20 py-8 px-4 mt-16">
-        <div className="max-w-7xl mx-auto text-center">
-          <p className="text-green-700 font-mono text-[10px] uppercase tracking-widest">
-            Showcase Protocol Initiated // Built on Next.js 16
+      <footer className="border-t border-green-500/10 py-8 px-4 mt-8">
+        <div className="max-w-5xl mx-auto flex justify-between items-center">
+          <p className="text-green-500/40 font-mono text-[10px]">
+            &copy; {new Date().getFullYear()} RAJJIT LAISHRAM // TERMINAL_V1.3.5
           </p>
+          <Link 
+            href="/feedback"
+            className="text-green-400 font-mono text-[10px] uppercase border-b border-green-400/30 transition-all animate-terminal-pulse flex items-center gap-1"
+          >
+            <span className="text-green-500">[!]</span> [SUBMIT_FEEDBACK]
+          </Link>
         </div>
       </footer>
     </div>

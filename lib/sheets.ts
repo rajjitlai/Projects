@@ -28,7 +28,7 @@ export async function getProjects(): Promise<Project[]> {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
-      range: 'projects!A2:M', // Skip header row, including columns K, L, M
+      range: 'projects!A2:O', // Skip header row, including new date columns N, O
     });
 
     const rows = response.data.values || [];
@@ -46,6 +46,8 @@ export async function getProjects(): Promise<Project[]> {
       category: row[10] as string || 'General',
       whyCreated: row[11] as string || '',
       problemSolved: row[12] as string || '',
+      startDate: row[13] as string || '',
+      completionDate: row[14] as string || '',
     }));
   } catch (error) {
     console.error('Error fetching projects:', error);
@@ -76,12 +78,14 @@ export async function createProject(project: Omit<Project, 'id' | 'createdAt'>):
     project.category || 'General',
     project.whyCreated || '',
     project.problemSolved || '',
+    project.startDate || '',
+    project.completionDate || '',
   ]];
 
   try {
     await sheets.spreadsheets.values.append({
       spreadsheetId: SHEET_ID,
-      range: 'projects!A2:M',
+      range: 'projects!A2:O',
       valueInputOption: 'RAW',
       requestBody: { values },
     });
@@ -119,6 +123,8 @@ export async function updateProject(id: string, updates: Partial<Omit<Project, '
     updatedProject.category || 'General',
     updatedProject.whyCreated || '',
     updatedProject.problemSolved || '',
+    updatedProject.startDate || '',
+    updatedProject.completionDate || '',
   ]];
 
   // Find row number (header + 1-based index)
@@ -127,7 +133,7 @@ export async function updateProject(id: string, updates: Partial<Omit<Project, '
   try {
     await sheets.spreadsheets.values.update({
       spreadsheetId: SHEET_ID,
-      range: `projects!A${rowIndex}:M${rowIndex}`,
+      range: `projects!A${rowIndex}:O${rowIndex}`,
       valueInputOption: 'RAW',
       requestBody: { values },
     });
@@ -137,6 +143,91 @@ export async function updateProject(id: string, updates: Partial<Omit<Project, '
     console.error('Error updating project:', error);
     throw new Error('Failed to update project');
   }
+}
+
+/** Reviews Management **/
+export async function getReviews(projectId?: string): Promise<any[]> {
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: 'reviews!A2:G',
+    });
+    const rows = response.data.values || [];
+    const reviews = rows.map(row => ({
+      id: row[0],
+      projectId: row[1],
+      author: row[2],
+      content: row[3],
+      rating: parseInt(row[4]) || 0,
+      isApproved: row[5] === 'TRUE',
+      createdAt: row[6],
+    }));
+    return projectId ? reviews.filter(r => r.projectId === projectId) : reviews;
+  } catch {
+    return [];
+  }
+}
+
+export async function addReview(review: any): Promise<void> {
+  const id = `REV_${Date.now()}`;
+  const createdAt = new Date().toISOString();
+  const values = [[
+    id,
+    review.projectId,
+    review.author,
+    review.content,
+    review.rating,
+    'FALSE', // Default to unapproved
+    createdAt
+  ]];
+  await sheets.spreadsheets.values.append({
+    spreadsheetId: SHEET_ID,
+    range: 'reviews!A2:G',
+    valueInputOption: 'RAW',
+    requestBody: { values },
+  });
+}
+
+export async function updateReviewStatus(id: string, isApproved: boolean): Promise<void> {
+  const reviews = await getReviews();
+  const rowIndex = reviews.findIndex((r) => r.id === id) + 2;
+
+  if (rowIndex < 2) throw new Error('Review not found');
+
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: SHEET_ID,
+    range: `reviews!F${rowIndex}`,
+    valueInputOption: 'RAW',
+    requestBody: { values: [[isApproved ? 'TRUE' : 'FALSE']] },
+  });
+}
+
+export async function deleteReviewRow(id: string): Promise<void> {
+  const reviews = await getReviews();
+  const rowIndex = reviews.findIndex((r) => r.id === id) + 2;
+
+  if (rowIndex < 2) throw new Error('Review not found');
+
+  // Need to find the sheetId for 'reviews'
+  const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId: SHEET_ID! });
+  const sheet = spreadsheet.data.sheets?.find(s => s.properties?.title === 'reviews');
+  const sheetId = sheet?.properties?.sheetId || 0;
+
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId: SHEET_ID,
+    requestBody: {
+      requests: [{
+        deleteDimension: {
+          range: {
+            sheetId,
+            dimension: 'ROWS',
+            startIndex: rowIndex - 1,
+            endIndex: rowIndex,
+          },
+        },
+      }],
+    },
+  });
 }
 
 export async function deleteProject(id: string): Promise<void> {

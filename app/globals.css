@@ -94,3 +94,23 @@
   background: rgba(34, 197, 94, 0.3);
   color: #22c55e;
 }
+
+@keyframes terminal-pulse {
+  0%, 100% {
+    text-shadow: 0 0 4px rgba(34, 197, 94, 0);
+    opacity: 0.6;
+  }
+  50% {
+    text-shadow: 0 0 12px rgba(34, 197, 94, 0.8);
+    opacity: 1;
+  }
+}
+
+.animate-terminal-pulse {
+  animation: terminal-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Cursor pointer as requested previously */
+button, a, [role="button"] {
+  cursor: pointer !important;
+}

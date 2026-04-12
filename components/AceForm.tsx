@@ -24,6 +24,8 @@ export function AceForm({ project, onSubmit, onCancel }: AceFormProps) {
     category: 'Web',
     whyCreated: '',
     problemSolved: '',
+    startDate: '',
+    completionDate: '',
     author: 'Rajjit Laishram',
     featured: false,
   });
@@ -103,7 +105,7 @@ export function AceForm({ project, onSubmit, onCancel }: AceFormProps) {
     }
   };
 
-  const categories = ['Web', 'Apps', 'Projects', 'Demos', 'Hackathons', 'AI Vibe Coded', 'Other'];
+  const categories = ['Web', 'Apps', 'Projects', 'Demos', 'Hackathons', 'AI Vibe Coded', 'AI Enhanced', 'Template', 'Production/Launched', 'Other'];
 
   return (
     <Terminal title={project ? '[EDIT_RECORD]' : '[NEW_RECORD]'} glow>
@@ -165,6 +167,30 @@ export function AceForm({ project, onSubmit, onCancel }: AceFormProps) {
               onChange={(e) => handleTagChange(e.target.value)}
               className="bg-black border-green-500/30 text-green-300 font-mono focus:border-green-400 focus:ring-green-400/20"
               placeholder="react, typescript..."
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-green-400 text-xs font-mono block">
+              INITIALIZATION_DATE:
+            </label>
+            <Input
+              type="date"
+              value={formData.startDate}
+              onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+              className="bg-black border-green-500/30 text-green-300 font-mono focus:border-green-400 focus:ring-green-400/20"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-green-400 text-xs font-mono block">
+              COMPLETION_DATE:
+            </label>
+            <Input
+              type="date"
+              value={formData.completionDate}
+              onChange={(e) => setFormData({ ...formData, completionDate: e.target.value })}
+              className="bg-black border-green-500/30 text-green-300 font-mono focus:border-green-400 focus:ring-green-400/20"
             />
           </div>
 

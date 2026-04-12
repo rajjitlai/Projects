@@ -221,7 +221,7 @@ export default function AceManagementPage() {
 
         {/* Edit/Create Dialog */}
         <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-          <DialogContent className="bg-[#0a0a0a] border-green-500/30 text-green-400 font-mono max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="bg-[#0a0a0a] border-green-500/30 text-green-400 font-mono max-w-5xl max-h-[90vh] overflow-y-auto">
             <DialogHeader className="mb-4">
               <DialogTitle className="text-green-400 font-mono text-xl">
                 {editingProject ? '[UPDATE_RECORD]' : '[CREATE_RECORD]'}

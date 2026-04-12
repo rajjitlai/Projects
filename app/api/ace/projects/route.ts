@@ -13,7 +13,21 @@ export async function POST(request: NextRequest) {
     const user = session?.email || 'admin';
 
     const body = await request.json();
-    const { title, description, image, liveUrl, repoUrl, tags, author, featured, category, whyCreated, problemSolved } = body;
+    const { 
+      title, 
+      description, 
+      image, 
+      liveUrl, 
+      repoUrl, 
+      tags, 
+      author, 
+      featured, 
+      category, 
+      whyCreated, 
+      problemSolved, 
+      startDate, 
+      completionDate 
+    } = body;
 
     if (!title || !description || !image || !author) {
       await logError({
@@ -40,6 +54,8 @@ export async function POST(request: NextRequest) {
       category: category || 'General',
       whyCreated: whyCreated || '',
       problemSolved: problemSolved || '',
+      startDate: startDate || '',
+      completionDate: completionDate || '',
     });
 
     await success({

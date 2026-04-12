@@ -10,8 +10,20 @@ export interface Project {
   category: string;
   whyCreated?: string;
   problemSolved?: string;
+  startDate?: string;
+  completionDate?: string;
   author: string;
   featured: boolean;
+  createdAt: string;
+}
+
+export interface Review {
+  id: string;
+  projectId: string;
+  author: string;
+  content: string;
+  rating: number;
+  isApproved: boolean;
   createdAt: string;
 }
 
@@ -43,6 +55,8 @@ export interface ProjectFormData {
   category: string;
   whyCreated?: string;
   problemSolved?: string;
+  startDate?: string;
+  completionDate?: string;
   author: string;
   featured: boolean;
 }

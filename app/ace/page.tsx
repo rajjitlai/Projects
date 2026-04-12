@@ -68,6 +68,13 @@ export default function AdminDashboard() {
               [VIEW_LOGS]
             </Button>
             <Button
+              onClick={() => router.push('/ace/reviews')}
+              variant="outline"
+              className="border-green-500/30 text-green-400 font-mono text-xs hover:bg-green-900/30"
+            >
+              [MODERATE_REVIEWS]
+            </Button>
+            <Button
               onClick={handleLogout}
               disabled={loggingOut}
               variant="ghost"
@@ -136,6 +143,17 @@ export default function AdminDashboard() {
               </div>
               <div className="text-green-500/50 text-xs">
                 View system activity and changes
+              </div>
+            </button>
+            <button
+              onClick={() => router.push('/ace/reviews')}
+              className="p-4 border border-green-500/30 rounded bg-black/30 hover:bg-green-900/20 text-left font-mono group transition-all"
+            >
+              <div className="text-green-400 text-sm font-semibold mb-2 group-hover:text-green-300">
+                [REVIEWS_MODERATION]
+              </div>
+              <div className="text-green-500/50 text-xs">
+                Approve, delete, or manage user feedback
               </div>
             </button>
           </div>

@@ -10,9 +10,10 @@ import { cn } from '@/lib/utils';
 interface ProjectCardProps {
   project: Project;
   onClick?: (project: Project) => void;
+  priority?: boolean;
 }
 
-export function ProjectCard({ project, onClick }: ProjectCardProps) {
+export function ProjectCard({ project, onClick, priority }: ProjectCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
 
   return (
@@ -45,6 +46,7 @@ export function ProjectCard({ project, onClick }: ProjectCardProps) {
           )}
           onLoad={() => setImageLoaded(true)}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          priority={priority}
         />
         {/* Overlay on hover */}
         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">

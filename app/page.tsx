@@ -2,14 +2,16 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import gsap from 'gsap';
 import { ProjectGrid } from '@/components/ProjectGrid';
 import { Project } from '@/types';
+import { ProjectGridSkeleton } from '@/components/ProjectSkeleton';
+import Link from 'next/link';
 
 export default function Home() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const heroRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -26,49 +28,37 @@ export default function Home() {
       );
     }
 
-    if (selectedTag) {
+    if (selectedCategory && selectedCategory !== 'All') {
       filtered = filtered.filter((p) =>
-        p.tags.map((t) => t.toLowerCase()).includes(selectedTag.toLowerCase())
+        p.category?.toLowerCase() === selectedCategory.toLowerCase()
       );
     }
 
     return filtered;
-  }, [projects, searchTerm, selectedTag]);
+  }, [projects, searchTerm, selectedCategory]);
+
+  const projectsByCategory = useMemo(() => {
+    const groups: Record<string, Project[]> = {};
+    filteredProjects.forEach((p) => {
+      const cat = p.category || 'Other';
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push(p);
+    });
+    return groups;
+  }, [filteredProjects]);
 
   useEffect(() => {
-    // Fetch projects
+    setIsLoading(true);
     fetch('/api/projects')
       .then((res) => res.json())
       .then((data) => {
         setProjects(data.data || []);
       })
-      .catch((err) => console.error('Failed to fetch projects:', err));
+      .catch((err) => console.error('Failed to fetch projects:', err))
+      .finally(() => setIsLoading(false));
   }, []);
 
-  useEffect(() => {
-    // Hero typewriter animation with GSAP
-    if (!heroRef.current) return;
-
-    const heroText = heroRef.current;
-    const lines = heroText.querySelectorAll('span');
-
-    gsap.fromTo(
-      lines,
-      { opacity: 0, x: -20 },
-      {
-        opacity: 1,
-        x: 0,
-        duration: 0.05,
-        stagger: 0.1,
-        ease: 'none',
-        repeat: -1,
-        repeatDelay: 5,
-        yoyo: true,
-      }
-    );
-  }, []);
-
-
+  const categories = ['All', 'Web', 'Apps', 'Projects', 'Demos', 'Hackathons', 'AI Vibe Coded', 'AI Enhanced', 'Template', 'Production/Launched'];
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-green-400">
@@ -115,7 +105,7 @@ export default function Home() {
             <h1 className="text-3xl md:text-5xl font-bold text-green-400 mb-2">
               <span className="inline-block">$</span>
               <span className="inline-block">_showcase</span>
-              <span className="inline-block">.init()</span>
+              <span className="inline-block">.init() v1.3.5</span>
             </h1>
             <p className="text-green-500/60 text-sm md:text-base font-mono max-w-xl">
               Curated collection by <span className="text-green-400">Rajjit Laishram</span>.
@@ -125,17 +115,17 @@ export default function Home() {
 
           {/* Category Filters */}
           <div className="flex flex-wrap gap-2 mt-6">
-            {['All', 'Web', 'Apps', 'Projects', 'Demos', 'Hackathons', 'AI Vibe Coded'].map((cat) => (
+            {categories.map((cat) => (
               <button
                 key={cat}
-                onClick={() => setSelectedTag(cat === 'All' ? null : cat)}
-                className={`px-3 py-1 border text-[10px] font-mono transition-all ${
-                  (cat === 'All' && !selectedTag) || selectedTag === cat
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-3 py-1 border text-[10px] font-mono transition-all uppercase ${
+                  (cat === 'All' && !selectedCategory) || selectedCategory === cat
                     ? 'bg-green-900/50 border-green-400 text-green-300'
                     : 'bg-black/50 border-green-500/20 text-green-500/40 hover:border-green-500/60'
                 }`}
               >
-                {cat.toUpperCase()}
+                {cat}
               </button>
             ))}
           </div>
@@ -145,30 +135,35 @@ export default function Home() {
       {/* Projects Grid */}
       <section className="pb-16 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="mb-6 flex justify-between items-end border-b border-green-500/20 pb-2">
-            <h2 className="text-green-400 font-mono text-lg">
-              <span className="text-green-500">[</span>
-              PROJECTS
-              <span className="text-green-500">]</span>
-              <span className="text-green-500/60 ml-2">
-                ({filteredProjects.length} found)
-              </span>
-            </h2>
-          </div>
-
-          {filteredProjects.length === 0 ? (
+          {isLoading ? (
+            <ProjectGridSkeleton />
+          ) : filteredProjects.length === 0 ? (
             <div className="text-center py-16">
               <p className="text-green-500/50 font-mono">
                 No projects match current filters.
               </p>
             </div>
           ) : (
-            <ProjectGrid
-              projects={filteredProjects}
-              onProjectClick={(project) => {
-                router.push(`/projects/${project.id}`);
-              }}
-            />
+            Object.entries(projectsByCategory).map(([category, catProjects]) => (
+              <div key={category} className="mb-12 last:mb-0">
+                <div className="mb-6 flex justify-between items-end border-b border-green-500/20 pb-2">
+                  <h2 className="text-green-400 font-mono text-lg">
+                    <span className="text-green-500">[</span>
+                    {category.toUpperCase()}
+                    <span className="text-green-500">]</span>
+                    <span className="text-green-500/60 ml-2">
+                      ({catProjects.length} records)
+                    </span>
+                  </h2>
+                </div>
+                <ProjectGrid
+                  projects={catProjects}
+                  onProjectClick={(project) => {
+                    router.push(`/projects/${project.id}`);
+                  }}
+                />
+              </div>
+            ))
           )}
         </div>
       </section>
@@ -180,9 +175,17 @@ export default function Home() {
             <span className="text-green-600">[</span> RAJJIT LAISHRAM — PROJECTS
             <span className="text-green-600"> ]</span>
           </p>
-          <p className="text-green-900/60 font-mono text-xs">
-            NEXT.JS · TAILWIND · GSAP · [V1.2.0]
-          </p>
+          <div className="flex items-center gap-6">
+            <Link
+              href="/feedback"
+              className="text-green-400 font-mono text-[10px] uppercase border-b border-green-400/30 transition-all animate-terminal-pulse flex items-center gap-1"
+            >
+              <span className="text-green-500">[!]</span> [SUBMIT_FEEDBACK]
+            </Link>
+            <p className="text-green-900/60 font-mono text-xs">
+              NEXT.JS · TAILWIND · GSAP · [V1.3.5]
+            </p>
+          </div>
         </div>
       </footer>
     </div>

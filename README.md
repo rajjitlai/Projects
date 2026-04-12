@@ -1,3 +1,4 @@
+# Project Portfolio — [V1.3.5]
 # Projects
 
 A personal project showcase platform built to display development work in a structured and accessible format. The application features a public-facing project gallery backed by Google Sheets, a secured admin panel for content management, and a terminal-inspired visual design.
