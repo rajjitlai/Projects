@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
-/* Matrix Green Theme - Terminal Aesthetic */
-:root {
+/* Matrix Green Theme - Terminal Aesthetic (Default) */
+:root, [data-theme="matrix"] {
   --background: #0a0a0a;
   --foreground: #22c55e;
   --card: #0d0d0d;
@@ -22,6 +22,52 @@
   --input: rgba(34, 197, 94, 0.3);
   --ring: #22c55e;
   --radius: 0.5rem;
+}
+
+/* Amber CRT Theme */
+[data-theme="amber"] {
+  --background: #0c0a06;
+  --foreground: #f59e0b;
+  --card: #120e07;
+  --card-foreground: #f59e0b;
+  --popover: #120e07;
+  --popover-foreground: #f59e0b;
+  --primary: #f59e0b;
+  --primary-foreground: #0a0a0a;
+  --secondary: #92400e;
+  --secondary-foreground: #fef3c7;
+  --muted: #1f160a;
+  --muted-foreground: #fbbf24;
+  --accent: #92400e;
+  --accent-foreground: #fef3c7;
+  --destructive: #dc2626;
+  --destructive-foreground: #fef2f2;
+  --border: rgba(245, 158, 11, 0.3);
+  --input: rgba(245, 158, 11, 0.3);
+  --ring: #f59e0b;
+}
+
+/* Cyan Cyberpunk Theme */
+[data-theme="cyan"] {
+  --background: #060b0d;
+  --foreground: #06b6d4;
+  --card: #081116;
+  --card-foreground: #06b6d4;
+  --popover: #081116;
+  --popover-foreground: #06b6d4;
+  --primary: #06b6d4;
+  --primary-foreground: #040809;
+  --secondary: #0e7490;
+  --secondary-foreground: #cffafe;
+  --muted: #081a20;
+  --muted-foreground: #22d3ee;
+  --accent: #0e7490;
+  --accent-foreground: #cffafe;
+  --destructive: #dc2626;
+  --destructive-foreground: #fef2f2;
+  --border: rgba(6, 182, 212, 0.3);
+  --input: rgba(6, 182, 212, 0.3);
+  --ring: #06b6d4;
 }
 
 @theme inline {
@@ -108,6 +154,21 @@
 
 .animate-terminal-pulse {
   animation: terminal-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Phosphor Glow & CRT utilities */
+.text-glow {
+  text-shadow: 0 0 8px color-mix(in srgb, var(--primary) 70%, transparent),
+               0 0 18px color-mix(in srgb, var(--primary) 30%, transparent);
+}
+
+.text-glow-sm {
+  text-shadow: 0 0 4px color-mix(in srgb, var(--primary) 60%, transparent);
+}
+
+.box-glow {
+  box-shadow: 0 0 25px color-mix(in srgb, var(--primary) 25%, transparent),
+              inset 0 0 15px color-mix(in srgb, var(--primary) 10%, transparent);
 }
 
 /* Cursor pointer as requested previously */

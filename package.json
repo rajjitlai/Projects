@@ -19,9 +19,8 @@
     "gsap": "^3.14.2",
     "jose": "^6.2.2",
     "lucide-react": "^1.7.0",
-    "next": "16.2.1",
-    "next-auth": "^4.24.13",
-    "nodemailer": "^7.0.13",
+    "next": "^16.3.1",
+    "nodemailer": "^9.0.5",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "shadcn": "^4.1.1",
@@ -37,5 +36,10 @@
     "eslint-config-next": "16.2.1",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "allowScripts": {
+    "sharp@0.34.5": true,
+    "unrs-resolver@1.12.2": true,
+    "core-js@2.6.12": true
   }
 }

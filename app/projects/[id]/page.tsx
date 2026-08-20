@@ -33,25 +33,40 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
 }
 
 import { ReviewSystem } from '@/components/ReviewSystem';
+import { BrowserMockup } from '@/components/BrowserMockup';
+import { ProjectNavDock } from '@/components/ProjectNavDock';
 
 export default async function ProjectPage({ params }: ProjectPageProps) {
   const { id } = await params;
-  const project = await getProjectById(id);
+  const [project, allProjects] = await Promise.all([
+    getProjectById(id),
+    getProjects(),
+  ]);
 
   if (!project) {
     notFound();
   }
 
+  const currentIndex = allProjects.findIndex((p) => p.id === id);
+  const prevProject =
+    currentIndex > 0
+      ? { id: allProjects[currentIndex - 1].id, title: allProjects[currentIndex - 1].title }
+      : undefined;
+  const nextProject =
+    currentIndex >= 0 && currentIndex < allProjects.length - 1
+      ? { id: allProjects[currentIndex + 1].id, title: allProjects[currentIndex + 1].title }
+      : undefined;
+
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-green-400 font-mono">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-mono">
       {/* Scanline overlay */}
       <div className="fixed inset-0 pointer-events-none z-50 bg-[linear-gradient(transparent_50%,rgba(0,255,65,0.03)_100%)] bg-[length:100%_4px]" />
 
       <header className="fixed top-4 left-4 right-4 z-40">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
+        <div className="max-w-5xl mx-auto flex justify-between items-center">
           <Link 
             href="/"
-            className="bg-black/80 border border-green-500/30 px-4 py-2 rounded backdrop-blur flex items-center gap-2 hover:border-green-400 transition-colors group"
+            className="bg-black/80 border border-green-500/30 px-4 py-2 rounded backdrop-blur flex items-center gap-2 hover:border-green-400 transition-colors group text-green-400"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             <span className="text-xs">[RETURN_TO_BASE]</span>
@@ -59,16 +74,16 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 pt-24 pb-16">
+      <main className="max-w-5xl mx-auto px-4 pt-24 pb-24">
         <div className="space-y-8">
           {/* Hero Section */}
           <div className="space-y-4">
             <div className="flex justify-between items-start">
               <div className="text-green-500/60 text-[10px] uppercase tracking-widest">
-                VECTOR_ID: {project.id} // CATEGORY: {project.category}
+                VECTOR_ID: {project.id} | CATEGORY: {project.category}
               </div>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-green-400">
+            <h1 className="text-4xl md:text-5xl font-bold text-green-400 text-glow">
               <span className="text-green-500">$</span> {project.title}
             </h1>
             <div className="flex flex-wrap gap-2">
@@ -88,19 +103,12 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Project Image & Details */}
             <div className="lg:col-span-2 space-y-8">
-              <Terminal title="visual_output.img">
-                <div className="relative aspect-video rounded overflow-hidden border border-green-500/20 bg-black">
-                  <Image
-                    src={project.image}
-                    alt={project.title}
-                    fill
-                    className="object-cover opacity-80 hover:opacity-100 transition-opacity"
-                    sizes="(max-width: 1024px) 100vw, 66vw"
-                    priority
-                  />
-                  <div className="absolute inset-0 pointer-events-none border border-green-500/10" />
-                </div>
-              </Terminal>
+              <BrowserMockup
+                image={project.image}
+                title={project.title}
+                liveUrl={project.liveUrl}
+                repoUrl={project.repoUrl}
+              />
 
               <Terminal title="analysis.txt">
                 <div className="space-y-4 text-green-300/90 leading-relaxed text-sm">
@@ -218,7 +226,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         </div>
       </main>
 
-      <footer className="border-t border-green-500/10 py-8 px-4 mt-8">
+      <footer className="border-t border-green-500/10 py-8 px-4 mt-8 pb-20 sm:pb-8">
         <div className="max-w-5xl mx-auto flex justify-between items-center">
           <p className="text-green-500/40 font-mono text-[10px]">
             &copy; {new Date().getFullYear()} RAJJIT LAISHRAM // TERMINAL_V1.3.5
@@ -231,6 +239,9 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           </Link>
         </div>
       </footer>
+
+      {/* Floating Bottom Project Navigation Dock */}
+      <ProjectNavDock prevProject={prevProject} nextProject={nextProject} />
     </div>
   );
 }
